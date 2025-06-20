@@ -15,7 +15,6 @@ import shelve
 if sys.platform == "win32":
     ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("YourAppID.UniqueName")
 
-
 def resource_path(relative_path):
     """ Get absolute path to resources for both dev and PyInstaller """
 
@@ -30,7 +29,6 @@ def resource_path(relative_path):
         raise FileNotFoundError(f"Resource not found: {full_path}")
     return full_path
 
-
 class QuizApp:
 
     def __init__(self, root):
@@ -43,20 +41,17 @@ class QuizApp:
 
         except Exception as e:
             print("Icon load error:", e)
-            
-        # self.storage_path = os.path.join(os.path.expanduser("~"), ".quiz_config")
-
         self.quiz_storage_path = os.path.join(os.path.expanduser("~"), ".quiz_app_config")
         os.makedirs(self.quiz_storage_path, exist_ok=True)
 
         if sys.platform == "win32":
+
             try:
                 ctypes.windll.kernel32.SetFileAttributesW(self.quiz_storage_path, 2)
+
             except:
                 pass
-
         self.config_file = os.path.join(self.quiz_storage_path, "config.ini")
-
         self.current_theme = self.load_theme()
         self.themes = {
             "light": {"bg": "#f0f0f0", "fg": "black", "button": "#e0e0e0", "accent": "#717771"},
@@ -88,11 +83,15 @@ class QuizApp:
     def load_theme(self):
         """Load theme from JSON storage"""
         theme_file = os.path.join(self.quiz_storage_path, "theme.json")
+
         if os.path.exists(theme_file):
+
             try:
+
                 with open(theme_file, 'r') as f:
                     data = json.load(f)
                     return data.get("theme", "light")
+
             except Exception as e:
                 print(f"Error loading theme: {e}")
         return "light"
@@ -100,9 +99,12 @@ class QuizApp:
     def save_theme(self):
         """Save current theme to JSON storage"""
         theme_file = os.path.join(self.quiz_storage_path, "theme.json")
+
         try:
+
             with open(theme_file, 'w') as f:
                 json.dump({"theme": self.current_theme}, f)
+
         except Exception as e:
             print(f"Error saving theme: {e}")
 
@@ -596,31 +598,31 @@ class QuizApp:
     def save_window_geometry(self):
         """Save window geometry and last transaction type"""
         config = configparser.ConfigParser()
-        
-        # Geometry section
         config["Geometry"] = {
             "size": self.root.geometry(),
             "state": self.root.state()
         }
 
-        # config_file = 'config.ini'
-        
         with open(self.config_file, "w") as f:
             config.write(f)
 
     def load_window_geometry(self):
+
         if os.path.exists(self.config_file):
             config = configparser.ConfigParser()
             config.read(self.config_file)
+
             if "Geometry" in config:
                 geometry = config["Geometry"].get("size", "")
                 state = config["Geometry"].get("state", "normal")
+
                 if geometry:
                     self.root.geometry(geometry)
                     self.root.update_idletasks()
                     self.root.update()
+
                 if state == "zoomed":
-                    self.root.state("zoomed")  # Restore maximized state
+                    self.root.state("zoomed")
                 elif state == "iconic":
                     self.root.iconify()
 
